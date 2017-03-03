@@ -2,8 +2,152 @@
 
 
 ## Dependencies
-TODO
 
+# libusb - macOS
+The version used is libusb-1.0.21.
+```sh
+CFLAGS="-g -O2 -mmacosx-version-min=10.7" ./configure --enable-static --disable-shared
+make -j4
+make DESTDIR=/Users/rqou/not-quite-brew install
+```
+
+# libusb - Windows
+The precompiled binaries for libusb 1.0.21 were used.
+
+# libftdi - macOS
+The version used is libftdi1-1.3. The following patch was used:
+```patch
+diff -aur libftdi1-1.3/python/CMakeLists.txt /Users/rqou/not-quite-brew/_work/libftdi1-1.3/python/CMakeLists.txt
+--- libftdi1-1.3/python/CMakeLists.txt  2016-05-19 23:53:12.000000000 -0700
++++ /Users/rqou/not-quite-brew/_work/libftdi1-1.3/python/CMakeLists.txt 2017-02-24 10:00:18.000000000 -0800
+@@ -30,6 +30,8 @@
+ 
+   if ( LINK_PYTHON_LIBRARY )
+     swig_link_libraries ( ftdi1 ${PYTHON_LIBRARIES} )
++  elseif( APPLE )
++    set_target_properties ( ${SWIG_MODULE_ftdi1_REAL_NAME} PROPERTIES LINK_FLAGS "-undefined dynamic_lookup" )
+   endif ()
+ 
+   set_target_properties ( ${SWIG_MODULE_ftdi1_REAL_NAME} PROPERTIES NO_SONAME ON )
+diff -aur libftdi1-1.3/src/CMakeLists.txt /Users/rqou/not-quite-brew/_work/libftdi1-1.3/src/CMakeLists.txt
+--- libftdi1-1.3/src/CMakeLists.txt 2016-05-19 23:53:12.000000000 -0700
++++ /Users/rqou/not-quite-brew/_work/libftdi1-1.3/src/CMakeLists.txt    2017-02-24 10:11:39.000000000 -0800
+@@ -21,22 +21,22 @@
+ set(c_sources     ${CMAKE_CURRENT_SOURCE_DIR}/ftdi.c ${CMAKE_CURRENT_SOURCE_DIR}/ftdi_stream.c CACHE INTERNAL "List of c sources" )
+ set(c_headers     ${CMAKE_CURRENT_SOURCE_DIR}/ftdi.h CACHE INTERNAL "List of c headers" )
+ 
+-add_library(ftdi1 SHARED ${c_sources})
++# add_library(ftdi1 SHARED ${c_sources})
+ 
+ math(EXPR VERSION_FIXUP "${MAJOR_VERSION} + 1")    # Compatiblity with previous releases
+-set_target_properties(ftdi1 PROPERTIES VERSION ${VERSION_FIXUP}.${MINOR_VERSION}.0 SOVERSION 2)
++# set_target_properties(ftdi1 PROPERTIES VERSION ${VERSION_FIXUP}.${MINOR_VERSION}.0 SOVERSION 2)
+ # Prevent clobbering each other during the build
+-set_target_properties ( ftdi1 PROPERTIES CLEAN_DIRECT_OUTPUT 1 )
++# set_target_properties ( ftdi1 PROPERTIES CLEAN_DIRECT_OUTPUT 1 )
+ 
+ 
+ # Dependencies
+-target_link_libraries(ftdi1 ${LIBUSB_LIBRARIES})
++# target_link_libraries(ftdi1 ${LIBUSB_LIBRARIES})
+ 
+-install ( TARGETS ftdi1
+-          RUNTIME DESTINATION bin
+-          LIBRARY DESTINATION lib${LIB_SUFFIX}
+-          ARCHIVE DESTINATION lib${LIB_SUFFIX}
+-        )
++# install ( TARGETS ftdi1
++#           RUNTIME DESTINATION bin
++#           LIBRARY DESTINATION lib${LIB_SUFFIX}
++#           ARCHIVE DESTINATION lib${LIB_SUFFIX}
++#         )
+ 
+ if ( STATICLIBS )
+   add_library(ftdi1-static STATIC ${c_sources})
+```
+
+```sh
+cmake .. -DLINK_PYTHON_LIBRARY=OFF -DCMAKE_C_FLAGS="-mmacosx-version-min=10.7 -stdlib=libc++" -DLIBUSB_INCLUDE_DIR=/Users/rqou/not-quite-brew/usr/local/include/libusb-1.0 -DLIBUSB_LIBRARIES=/Users/rqou/not-quite-brew/usr/local/lib/libusb-
+1.0.a -DEXAMPLES=off
+make
+make DESTDIR=/Users/rqou/not-quite-brew install
+```
+
+# libftdi - Windows
+The version used is libftdi1-1.3. The following patch was used:
+```patch
+diff -aur libftdi1-1.3-orig/src/CMakeLists.txt libftdi1-1.3/src/CMakeLists.txt
+--- libftdi1-1.3-orig/src/CMakeLists.txt    2016-05-19 23:53:12.000000000 -0700
++++ libftdi1-1.3/src/CMakeLists.txt 2017-02-24 23:55:03.108323806 -0800
+@@ -21,22 +21,22 @@
+ set(c_sources     ${CMAKE_CURRENT_SOURCE_DIR}/ftdi.c ${CMAKE_CURRENT_SOURCE_DIR}/ftdi_stream.c CACHE INTERNAL "List of c sources" )
+ set(c_headers     ${CMAKE_CURRENT_SOURCE_DIR}/ftdi.h CACHE INTERNAL "List of c headers" )
+ 
+-add_library(ftdi1 SHARED ${c_sources})
++# add_library(ftdi1 SHARED ${c_sources})
+ 
+ math(EXPR VERSION_FIXUP "${MAJOR_VERSION} + 1")    # Compatiblity with previous releases
+-set_target_properties(ftdi1 PROPERTIES VERSION ${VERSION_FIXUP}.${MINOR_VERSION}.0 SOVERSION 2)
++# set_target_properties(ftdi1 PROPERTIES VERSION ${VERSION_FIXUP}.${MINOR_VERSION}.0 SOVERSION 2)
+ # Prevent clobbering each other during the build
+-set_target_properties ( ftdi1 PROPERTIES CLEAN_DIRECT_OUTPUT 1 )
++# set_target_properties ( ftdi1 PROPERTIES CLEAN_DIRECT_OUTPUT 1 )
+ 
+ 
+ # Dependencies
+-target_link_libraries(ftdi1 ${LIBUSB_LIBRARIES})
++# target_link_libraries(ftdi1 ${LIBUSB_LIBRARIES})
+ 
+-install ( TARGETS ftdi1
+-          RUNTIME DESTINATION bin
+-          LIBRARY DESTINATION lib${LIB_SUFFIX}
+-          ARCHIVE DESTINATION lib${LIB_SUFFIX}
+-        )
++# install ( TARGETS ftdi1
++#           RUNTIME DESTINATION bin
++#           LIBRARY DESTINATION lib${LIB_SUFFIX}
++#           ARCHIVE DESTINATION lib${LIB_SUFFIX}
++#         )
+ 
+ if ( STATICLIBS )
+   add_library(ftdi1-static STATIC ${c_sources})
+```
+
+```sh
+cmake .. -DLINK_PYTHON_LIBRARY=OFF -DEXAMPLES=off -DPYTHON_BINDINGS=off -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc-win32 -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++-win32 -DCMAKE_SYSTEM_NAME=Windows -DFTDIPP=off -DLIBUSB_INCLUDE_DIR=/home/rqou/windoze/libusb/include/libusb-1.0 -DLIBUSB_LIBRARIES=/home/rqou/windoze/libusb/MinGW64/static/libusb-1.0.a
+make
+make DESTDIR=/home/rqou/windoze install
+```
+
+# json-c - macOS
+The version used is json-c-0.12-20140410.
+```sh
+CFLAGS="-g -O2 -mmacosx-version-min=10.7" ./configure --enable-static --disable-shared
+make -j4
+make DESTDIR=/Users/rqou/not-quite-brew install
+```
+
+# json-c - Windows
+The version used is json-c-0.12.1-20160607. The following patch was used:
+```patch
+diff -aur json-c-json-c-0.12.1-20160607-orig/random_seed.c json-c-json-c-0.12.1-20160607/random_seed.c
+--- json-c-json-c-0.12.1-20160607-orig/random_seed.c    2016-06-06 21:05:03.000000000 -0700
++++ json-c-json-c-0.12.1-20160607/random_seed.c 2017-02-25 01:15:59.223463268 -0800
+@@ -181,7 +181,6 @@
+ #define HAVE_CRYPTGENRANDOM 1
+ 
+ #include <windows.h>
+-#pragma comment(lib, "advapi32.lib")
+ 
+ static int get_cryptgenrandom_seed()
+ {
+```
+
+```sh
+ac_cv_func_realloc_0_nonnull=yes ac_cv_func_malloc_0_nonnull=yes CC=x86_64-w64-mingw32-gcc-win32 ./configure --host=x86_64-w64-mingw32 --enable-static --disable-shared
+make
+make DESTDIR=/home/rqou/windoze install
+```
 
 ## arachne-pnr
 
