@@ -149,6 +149,58 @@ make
 make DESTDIR=/home/rqou/windoze install
 ```
 
+# readline - macOS
+The version used is 7.0 with patchlevel -001.
+```sh
+CFLAGS="-g -O2 -mmacosx-version-min=10.7" ./configure --enable-multibyte --enable-static --disable-shared
+make -j4
+make DESTDIR=/Users/rqou/not-quite-brew install
+```
+
+# readline - Windows
+The version used is 7.0 with patchlevel -003. The following additional patch was used:
+```patch
+diff -aur readline-7.0-orig/histfile.c readline-7.0/histfile.c
+--- readline-7.0-orig/histfile.c    2016-01-25 07:34:03.000000000 -0800
++++ readline-7.0/histfile.c 2017-02-25 15:46:18.382925980 -0800
+@@ -611,7 +611,7 @@
+      with a shared history file, we don't want to leave the history file
+      owned by root. */
+   if (rv == 0 && exists)
+-    r = chown (filename, finfo.st_uid, finfo.st_gid);
++    ; //r = chown (filename, finfo.st_uid, finfo.st_gid);
+ 
+   xfree (filename);
+   FREE (tempname);
+@@ -758,7 +758,7 @@
+      with a shared history file, we don't want to leave the history file
+      owned by root. */
+   if (rv == 0 && exists)
+-    mode = chown (histname, finfo.st_uid, finfo.st_gid);
++    ; //mode = chown (histname, finfo.st_uid, finfo.st_gid);
+ 
+   FREE (histname);
+   FREE (tempname);
+diff -aur readline-7.0-orig/rlconf.h readline-7.0/rlconf.h
+--- readline-7.0-orig/rlconf.h  2016-01-25 07:35:32.000000000 -0800
++++ readline-7.0/rlconf.h   2017-02-25 15:29:58.599363156 -0800
+@@ -30,7 +30,7 @@
+ 
+ /* Define this to get support for colors when listing completions and in
+    other places. */
+-#define COLOR_SUPPORT
++// #define COLOR_SUPPORT
+ 
+ /* This definition is needed by readline.c, rltty.c, and signals.c. */
+ /* If on, then readline handles signals in a way that doesn't suck. */
+```
+
+```sh
+./configure --host=x86_64-w64-mingw32 --enable-static --disable-shared
+make
+make DESTDIR=/home/rqou/windoze install
+```
+
 ## arachne-pnr
 
 # macOS
