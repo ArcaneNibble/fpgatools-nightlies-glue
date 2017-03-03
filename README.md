@@ -201,6 +201,30 @@ make
 make DESTDIR=/home/rqou/windoze install
 ```
 
+# libffi - macOS
+The version used is 3.0.13.
+
+```sh
+CFLAGS="-g -O2 -mmacosx-version-min=10.7" ./configure --enable-static --disable-shared
+make -j4
+make DESTDIR=/Users/rqou/not-quite-brew install
+```
+
+# mingw-std-threads - Windows
+The version used is b0ea9245bc30b32424c95eac7456cbc00140021d.
+
+# Tcl - Windows
+The version used is 8.6.6.
+
+```sh
+./configure --host=x86_64-w64-mingw32 --enable-static --disable-shared --enable-threads
+make
+make INSTALL_ROOT=/home/rqou/windoze install
+```
+
+# termcap - Windows
+The version used is 1.3.1.
+
 ## arachne-pnr
 
 # macOS
