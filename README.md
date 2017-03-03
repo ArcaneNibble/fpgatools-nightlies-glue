@@ -225,6 +225,46 @@ make INSTALL_ROOT=/home/rqou/windoze install
 # termcap - Windows
 The version used is 1.3.1.
 
+
+```sh
+./configure --host=x86_64-w64-mingw32 --enable-static --disable-shared
+```
+
+This patch is applied **after** configuring:
+```patch
+diff -Naur termcap-1.3.1-config/Makefile termcap-1.3.1/Makefile
+--- termcap-1.3.1-config/Makefile   2017-03-03 04:31:58.571746313 -0800
++++ termcap-1.3.1/Makefile  2017-02-25 15:42:48.348405710 -0800
+@@ -20,8 +20,8 @@
+ 
+ srcdir = .
+ 
+-CC = gcc
+-AR = ar
++CC = x86_64-w64-mingw32-gcc-win32
++AR = x86_64-w64-mingw32-ar
+ RANLIB = ranlib
+ 
+ INSTALL = /usr/bin/install -c
+diff -Naur termcap-1.3.1-config/tparam.c termcap-1.3.1/tparam.c
+--- termcap-1.3.1-config/tparam.c   2002-02-25 09:37:24.000000000 -0800
++++ termcap-1.3.1/tparam.c  2017-02-25 15:45:02.426013216 -0800
+@@ -33,6 +33,8 @@
+ char *realloc ();
+ #endif
+ 
++#include <unistd.h>
++
+ /* Do this after the include, in case string.h prototypes bcopy.  */
+ #if (defined(HAVE_STRING_H) || defined(STDC_HEADERS)) && !defined(bcopy)
+ #define bcopy(s, d, n) memcpy ((d), (s), (n))
+```
+
+```sh
+make
+make prefix=/home/rqou/windoze/usr/local install
+```
+
 ## arachne-pnr
 
 # macOS
